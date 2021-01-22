@@ -28,3 +28,6 @@
 
 # Ignore idea fiels
 .idea
+
+# Ignore node_module
+todos-vue/node_modules
