@@ -1,3 +1,7 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  resources :todos
+  post '/refresh', to: 'refresh#create'
+  post '/signin', to: 'signin#create'
+  post '/signup', to: 'signup#create'
+  delete '/signin', to: 'signin#destroy'
 end
