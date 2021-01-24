@@ -34,3 +34,6 @@ todos-vue/node_modules
 
 # Ignore yarn fiels
 todos-vue/yarn.lock
+
+# Ignore dump file
+dump.rdb
