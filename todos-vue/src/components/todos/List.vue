@@ -1,4 +1,3 @@
-
 <template>
   <div class="todos">
     <div class="alert alert-danger" v-if="error">{{ error }}</div>
