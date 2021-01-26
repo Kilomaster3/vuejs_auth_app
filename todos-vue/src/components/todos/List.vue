@@ -1,5 +1,6 @@
 <template>
   <div class="todos">
+    <AppHeader></AppHeader>
     <div class="alert alert-danger" v-if="error">{{ error }}</div>
     <h3>Todos</h3>
     <input class="form-control"
@@ -28,6 +29,8 @@
 </template>
 
 <script>
+import AppHeader from '@/components/AppHeader'
+
 export default {
   name: 'List',
   data () {
@@ -83,7 +86,8 @@ export default {
     'todo-focus': function (el) {
       el.focus()
     }
-  }
+  },
+  components: { AppHeader }
 }
 </script>
 

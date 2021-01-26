@@ -1,4 +1,3 @@
-
 <template>
   <form class="form-signup" @submit.prevent="signup">
     <div class="alert alert-danger" v-if="error">{{ error }}</div>
@@ -44,23 +43,25 @@ export default {
         .then(response => this.signupSuccessful(response))
         .catch(error => this.signupFailed(error))
     },
-    signupSuccessful (response) {
+    signinSuccessful (response) {
       if (!response.data.csrf) {
-        this.signupFailed(response)
+        this.signinFailed(response)
         return
       }
-      localStorage.csrf = response.data.csrf
-      localStorage.signedIn = true
-      this.error = ''
-      this.$router.replace('/todos')
+      this.$http.plain.get('/me')
+        .then(meResponse => {
+          this.$store.commit('setCurrentUser', { currentUser: meResponse.data, csrf: response.data.csrf })
+          this.error = ''
+          this.$router.replace('/todos')
+        })
+        .catch(error => this.signinFailed(error))
     },
-    signupFailed (error) {
-      this.error = (error.response && error.response.data && error.response.data.error) || 'Something went wrong'
-      delete localStorage.csrf
-      delete localStorage.signedIn
+    signinFailed (error) {
+      this.error = (error.response && error.response.data && error.response.data.error) || ''
+      this.$store.commit('unsetCurrentUser')
     },
     checkSignedIn () {
-      if (localStorage.signedIn) {
+      if (this.$store.state.signedIn) {
         this.$router.replace('/todos')
       }
     }
