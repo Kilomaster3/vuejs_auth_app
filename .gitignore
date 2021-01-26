@@ -29,11 +29,17 @@
 # Ignore idea fiels
 .idea
 
-# Ignore node_module
+# Ignore node_module in todos-vue
 todos-vue/node_modules
 
-# Ignore yarn fiels
+# Ignore yarn fiels in todos-vue
 todos-vue/yarn.lock
 
 # Ignore dump file
 dump.rdb
+
+# Ignore node_module
+node_modules
+
+# Ignore yarn
+yarn.lock
