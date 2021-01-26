@@ -1,5 +1,4 @@
 import axios from 'axios'
-import {store} from './../../store'
 
 const API_URL = 'http://localhost:3000'
 
@@ -24,7 +23,7 @@ securedAxiosInstance.interceptors.request.use(config => {
   if (method !== 'OPTIONS' && method !== 'GET') {
     config.headers = {
       ...config.headers,
-      'X-CSRF-TOKEN': store.state.csrf
+      'X-CSRF-TOKEN': localStorage.csrf
     }
   }
   return config
@@ -32,14 +31,16 @@ securedAxiosInstance.interceptors.request.use(config => {
 
 securedAxiosInstance.interceptors.response.use(null, error => {
   if (error.response && error.response.config && error.response.status === 401) {
-    return plainAxiosInstance.post('/refresh', {}, { headers: { 'X-CSRF-TOKEN': store.state.csrf } })
+    return plainAxiosInstance.post('/refresh', {}, { headers: { 'X-CSRF-TOKEN': localStorage.csrf } })
       .then(response => {
-        store.commit('refresh', response.data.csrf)
+        localStorage.csrf = response.data.csrf
+        localStorage.signedIn = true
         let retryConfig = error.response.config
-        retryConfig.headers['X-CSRF-TOKEN'] = store.state.csrf
+        retryConfig.headers['X-CSRF-TOKEN'] = localStorage.csrf
         return plainAxiosInstance.request(retryConfig)
       }).catch(error => {
-        store.commit('unsetCurrentUser')
+        delete localStorage.csrf
+        delete localStorage.signedIn
         location.replace('/')
         return Promise.reject(error)
       })

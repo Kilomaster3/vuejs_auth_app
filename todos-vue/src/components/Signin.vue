@@ -43,20 +43,18 @@ export default {
         this.signinFailed(response)
         return
       }
-      this.$http.plain.get('/me')
-        .then(meResponse => {
-          this.$store.commit('setCurrentUser', { currentUser: meResponse.data, csrf: response.data.csrf })
-          this.error = ''
-          this.$router.replace('/todos')
-        })
-        .catch(error => this.signinFailed(error))
+      localStorage.csrf = response.data.csrf
+      localStorage.signedIn = true
+      this.error = ''
+      this.$router.replace('/todos')
     },
     signinFailed (error) {
       this.error = (error.response && error.response.data && error.response.data.error) || ''
-      this.$store.commit('unsetCurrentUser')
+      delete localStorage.csrf
+      delete localStorage.signedIn
     },
     checkSignedIn () {
-      if (this.$store.state.signedIn) {
+      if (localStorage.signedIn) {
         this.$router.replace('/todos')
       }
     }
