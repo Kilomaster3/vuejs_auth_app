@@ -5,7 +5,10 @@ Rails.application.routes.draw do
   post '/signup', to: 'signup#create'
   delete '/signin', to: 'signin#destroy'
   get '/me', to: 'users#me'
+
   namespace :admin do
-    resources :users, only: [:index]
+    resources :users, only: [:index] do
+      resources :todos, only: [:index], controller: 'users/todos'
+    end
   end
 end
