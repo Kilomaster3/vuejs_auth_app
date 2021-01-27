@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :todo do
-    title { 'MyString' }
-    user { nil }
+    title { Faker::Movies::StarWars.quote }
+    user { Faker::Movies::StarWars.character }
   end
 end

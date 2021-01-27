@@ -3,12 +3,7 @@ require 'rails_helper'
 RSpec.describe SigninController, type: :controller do
   describe 'POST #create' do
     let(:user) { FactoryBot.create(:user) }
-    let(:user_params) { { email: user.email, password: 'password' } }
-
-    it 'returns http success' do
-      post :create, params: user_params
-      expect(response).to have_http_status(200)
-    end
+    let(:user_params) { { email: user.email, password: '123456789a' } }
 
     it 'returns unauthorized for invalid params' do
       post :create, params: { email: user.email, password: 'incorrect' }
