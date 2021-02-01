@@ -1,5 +1,5 @@
 class SignupController < ApplicationController
-  KEYS = [:email, :password, :password_confirmation].freeze
+  KEYS = %i[email password password_confirmation].freeze
   def create
     user = User.new(user_params)
     if user.save
@@ -23,6 +23,6 @@ class SignupController < ApplicationController
   private
 
   def user_params
-    params.tap { |p| p.require(KEYS) }.permit(*KEYS)
+    params.tap { |p| p.require(:signup) }.permit(*KEYS)
   end
 end

@@ -1,5 +1,5 @@
 <template>
-  <form class="form-signup" @submit.prevent="signup">
+  <form class="form-app form-signup" @submit.prevent="signup">
     <div class="alert alert-danger" v-if="error">{{ error }}</div>
     <div class="form-group">
       <label for="email">Email address</label>
@@ -16,6 +16,8 @@
     <button type="submit" class="btn btn-primary mb-3">Sign up</button>
     <div>
       <router-link to="/">Sign in</router-link>
+      <br/>
+      <router-link to="/forgot_password">Forgot Password</router-link>
     </div>
   </form>
 </template>
@@ -43,9 +45,9 @@ export default {
         .then(response => this.signupSuccessful(response))
         .catch(error => this.signupFailed(error))
     },
-    signinSuccessful (response) {
+    signupSuccessful (response) {
       if (!response.data.csrf) {
-        this.signinFailed(response)
+        this.signupFailed(response)
         return
       }
       this.$http.plain.get('/me')
@@ -54,10 +56,10 @@ export default {
           this.error = ''
           this.$router.replace('/todos')
         })
-        .catch(error => this.signinFailed(error))
+        .catch(error => this.signupFailed(error))
     },
-    signinFailed (error) {
-      this.error = (error.response && error.response.data && error.response.data.error) || ''
+    signupFailed (error) {
+      this.error = (error.response && error.response.data && error.response.data.error) || 'Something went wrong'
       this.$store.commit('unsetCurrentUser')
     },
     checkSignedIn () {
