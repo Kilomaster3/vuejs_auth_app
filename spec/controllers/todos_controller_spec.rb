@@ -2,36 +2,21 @@ require 'rails_helper'
 
 RSpec.describe TodosController, type: :controller do
   let(:user) { FactoryBot.create(:user) }
+  let(:valid_attributes) { { title: 'new title' } }
+  before { sign_in_as(user) }
 
-  let(:valid_attributes) do
-    { title: 'new title' }
-  end
-
-  let(:invalid_attributes) do
-    { title: nil }
-  end
-
-  before do
-    payload = { user_id: user.id }
-    session = JWTSessions::Session.new(payload: payload)
-    @tokens = session.login
-  end
-
-  describe 'GET #index' do
+  describe 'GET#index' do
     let!(:todo) { FactoryBot.create(:todo, user: user) }
 
     it 'returns a success response' do
-      request.cookies[JWTSessions.access_cookie] = @tokens[:access]
       get :index
       expect(response).to be_successful
       expect(response_json.size).to eq 1
       expect(response_json.first['id']).to eq todo.id
     end
 
-    # usually there's no need to test this kind of stuff
-    # within the resources endpoints
-    # the quick spec is here only for the presentation purposes
     it 'unauth without cookie' do
+      request.cookies[JWTSessions.access_cookie] = nil
       get :index
       expect(response).to have_http_status(401)
     end
@@ -39,9 +24,9 @@ RSpec.describe TodosController, type: :controller do
 
   describe 'GET #show' do
     let!(:todo) { FactoryBot.create(:todo, user: user) }
+    before { sign_in_as(user) }
 
     it 'returns a success response' do
-      request.cookies[JWTSessions.access_cookie] = @tokens[:access]
       get :show, params: { id: todo.id }
       expect(response).to be_successful
     end
@@ -51,16 +36,12 @@ RSpec.describe TodosController, type: :controller do
 
     context 'with valid params' do
       it 'creates a new Todo' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-        request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
-        expect do
+        expect {
           post :create, params: { todo: valid_attributes }
-        end.to change(Todo, :count).by(1)
+        }.to change(Todo, :count).by(1)
       end
 
       it 'renders a JSON response with the new todo' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-        request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
         post :create, params: { todo: valid_attributes }
         expect(response).to have_http_status(:created)
         expect(response.content_type).to eq('application/json; charset=utf-8')
@@ -68,7 +49,7 @@ RSpec.describe TodosController, type: :controller do
       end
 
       it 'unauth without CSRF' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
+        request.headers[JWTSessions.csrf_header] = nil
         post :create, params: { todo: valid_attributes }
         expect(response).to have_http_status(401)
       end
@@ -76,10 +57,8 @@ RSpec.describe TodosController, type: :controller do
 
     context 'with invalid params' do
       it 'renders a JSON response with errors for the new todo' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-        request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
-        post :create, params: { todo: invalid_attributes }
-        expect(response).to have_http_status(201)
+        post :create, params: { todo: nil }
+        expect(response).to have_http_status(400)
         expect(response.content_type).to eq('application/json; charset=utf-8')
       end
     end
@@ -89,21 +68,15 @@ RSpec.describe TodosController, type: :controller do
     let!(:todo) { FactoryBot.create(:todo, user: user) }
 
     context 'with valid params' do
-      let(:new_attributes) do
-        { title: 'Super secret title' }
-      end
+      let(:new_attributes) { { title: 'Super secret title' } }
 
       it 'updates the requested todo' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-        request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
         put :update, params: { id: todo.id, todo: new_attributes }
         todo.reload
         expect(todo.title).to eq new_attributes[:title]
       end
 
       it 'renders a JSON response with the todo' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-        request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
         put :update, params: { id: todo.to_param, todo: valid_attributes }
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to eq('application/json; charset=utf-8')
@@ -112,10 +85,8 @@ RSpec.describe TodosController, type: :controller do
 
     context 'with invalid params' do
       it 'renders a JSON response with errors for the todo' do
-        request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-        request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
-        put :update, params: { id: todo.to_param, todo: invalid_attributes }
-        expect(response).to have_http_status(200)
+        put :update, params: { id: todo.to_param, todo: nil }
+        expect(response).to have_http_status(400)
         expect(response.content_type).to eq('application/json; charset=utf-8')
       end
     end
@@ -125,11 +96,9 @@ RSpec.describe TodosController, type: :controller do
     let!(:todo) { FactoryBot.create(:todo, user: user) }
 
     it 'destroys the requested todo' do
-      request.cookies[JWTSessions.access_cookie] = @tokens[:access]
-      request.headers[JWTSessions.csrf_header] = @tokens[:csrf]
-      expect do
+      expect {
         delete :destroy, params: { id: todo.id }
-      end.to change(Todo, :count).by(-1)
+      }.to change(Todo, :count).by(-1)
     end
   end
 end

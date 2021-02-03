@@ -18,7 +18,6 @@
         <div v-show="todo == editedTodo">
           <input class="form-control"
             v-todo-focus
-            @blur="updateTodo(todo)"
             @keyup.enter="updateTodo(todo)"
             v-model="todo.title"
           />
@@ -30,7 +29,6 @@
 
 <script>
 import AppHeader from '@/components/AppHeader'
-
 export default {
   name: 'List',
   data () {
@@ -42,12 +40,12 @@ export default {
     }
   },
   created () {
-    if (!localStorage.signedIn) {
+    if (!this.$store.state.signedIn) {
       this.$router.replace('/')
     } else {
       this.$http.secured.get('/todos')
         .then(response => { this.todos = response.data })
-        .catch(error => this.setError(error, 'Something went wrong'))
+        .catch(error => { this.setError(error, 'Something went wrong') })
     }
   },
   methods: {
@@ -68,9 +66,7 @@ export default {
     },
     removeTodo (todo) {
       this.$http.secured.delete(`/todos/${todo.id}`)
-        .then(response => {
-          this.todos.splice(this.todos.indexOf(todo), 1)
-        })
+        .then(response => this.todos.splice(this.todos.indexOf(todo), 1))
         .catch(error => this.setError(error, 'Cannot delete todo'))
     },
     editTodo (todo) {
@@ -92,14 +88,15 @@ export default {
 </script>
 
 <style lang="css">
-.todos ul li i.fa.fa-trash-alt {
-  visibility: hidden;
-  margin-top: 5px;
-}
-.todos ul li:hover {
-  background: #fcfcfc;
-}
-.todos ul li:hover i.fa.fa-trash-alt {
-  visibility: visible;
-}
+  .todos ul li i.fa.fa-trash-alt {
+    cursor: pointer;
+    visibility: hidden;
+    margin-top: 5px;
+  }
+  .todos ul li:hover {
+    background: #fcfcfc;
+  }
+  .todos ul li:hover i.fa.fa-trash-alt {
+    visibility: visible;
+  }
 </style>
