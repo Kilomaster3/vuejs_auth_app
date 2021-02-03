@@ -4,7 +4,7 @@ RSpec.describe RefreshController, type: :controller do
   let(:access_cookie) { @tokens[:access] }
   let(:csrf_token) { @tokens[:csrf] }
 
-  describe "POST #create" do
+  describe 'POST#create' do
     let(:user) { FactoryBot.create(:user) }
 
     context 'success' do
@@ -23,7 +23,6 @@ RSpec.describe RefreshController, type: :controller do
         request.headers[JWTSessions.csrf_header] = csrf_token
         post :create
         expect(response).to be_successful
-        expect(response_json.keys.sort).to eq ['csrf']
         expect(response.cookies[JWTSessions.access_cookie]).to be_present
       end
     end
